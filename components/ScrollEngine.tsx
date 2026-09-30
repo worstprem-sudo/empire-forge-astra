@@ -232,7 +232,6 @@ export default function ScrollEngine() {
     const virtualScroll = ({ deltaY, event }: { deltaY: number; event: Event }) => {
       const dir = Math.sign(deltaY);
       const isWheel = event.type === "wheel";
-      const isTouch = event.type.startsWith("touch");
 
       if (event.type === "touchstart") {
         touchTravel = 0;
@@ -240,14 +239,6 @@ export default function ScrollEngine() {
         return true;
       }
       if ((event as WheelEvent).ctrlKey) return true;
-      // Never cancel touchend: that would swallow the tap's click.
-      const blockable = isWheel || event.type === "touchmove";
-      if (!dir || !inSnapRange(dir)) {
-        if (blockable && snapping && event.cancelable) event.preventDefault();
-        return !snapping;
-      }
-
-      if (blockable && event.cancelable) event.preventDefault();
 
       if (isWheel) {
         const now = performance.now();
@@ -258,19 +249,30 @@ export default function ScrollEngine() {
           if (gap < 160) return false;
           waitForQuiet = false;
         }
-        if (Math.abs(deltaY) >= 2) step(dir);
-        return false;
+        // Only snap on small, discrete wheel movements (trackpad flicks)
+        if (Math.abs(deltaY) <= 3 && inSnapRange(dir)) {
+          step(dir);
+          return false;
+        }
+        // Let large scrolls through for natural scrolling
+        return true;
       }
 
       if (event.type === "touchmove") {
         touchTravel += deltaY;
-        if (!touchFired && Math.abs(touchTravel) > 28) {
+        if (!touchFired && Math.abs(touchTravel) > 40) {
           touchFired = true;
           waitForQuiet = false;
-          step(Math.sign(touchTravel));
+          if (inSnapRange(Math.sign(touchTravel))) {
+            step(Math.sign(touchTravel));
+            if (event.cancelable) event.preventDefault();
+          }
+          return false;
         }
+        // Allow normal scrolling for ongoing touch
+        return true;
       }
-      return false;
+      return true;
     };
 
     const onKey = (e: KeyboardEvent) => {

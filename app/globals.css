@@ -283,7 +283,7 @@ body[data-cursor="on"] * {
   position: fixed;
   top: clamp(0.85rem, 2vw, 1.4rem);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(0);
   z-index: 120;
   display: flex;
   align-items: center;
@@ -296,8 +296,9 @@ body[data-cursor="on"] * {
 }
 
 .nav[data-hidden="true"] {
-  transform: translate(-50%, calc(-100% - 2rem));
+  transform: translateX(-50%) translateY(calc(-100% - 2rem));
   opacity: 0;
+  pointer-events: none;
 }
 
 .nav[data-hidden="true"] > * {
@@ -1497,8 +1498,14 @@ body[data-cursor="on"] * {
 
 @media (max-width: 640px) {
   .stage-pin {
-    padding: 4.75rem var(--gutter) 1.5rem;
+    padding: 5.5rem 1rem 1.5rem;
     overflow-x: clip;
+  }
+
+  .shell {
+    width: 100%;
+    padding: 0 0.75rem;
+    box-sizing: border-box;
   }
 
   .display,
@@ -1508,6 +1515,7 @@ body[data-cursor="on"] * {
     line-height: 1.05;
     letter-spacing: -0.03em;
     overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .typewell {
