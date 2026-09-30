@@ -17,6 +17,7 @@ import Mark from "./Mark";
  */
 export default function Nav() {
   const [active, setActive] = useState(-1);
+  const [hidden, setHidden] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const indicator = useRef<HTMLSpanElement>(null);
 
@@ -26,6 +27,22 @@ export default function Nav() {
     };
     document.addEventListener("astera:section", onSection);
     return () => document.removeEventListener("astera:section", onSection);
+  }, []);
+
+  // Tucks away while scrolling down so it never sits over the copy,
+  // and comes straight back on any scroll up or near the top.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastY;
+      if (y < 80) setHidden(false);
+      else if (delta > 4) setHidden(true);
+      else if (delta < -4) setHidden(false);
+      if (Math.abs(delta) > 4 || y < 80) lastY = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const place = () => {
@@ -53,7 +70,12 @@ export default function Nav() {
   }, []);
 
   return (
-    <nav className="nav" aria-label="Primary">
+    <nav
+      className="nav"
+      aria-label="Primary"
+      data-hidden={hidden}
+      onFocus={() => setHidden(false)}
+    >
       <div className="pill">
         <a
           className="brand"

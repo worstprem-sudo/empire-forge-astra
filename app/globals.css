@@ -40,6 +40,8 @@
 
 html {
   background: var(--bg);
+  /* Nothing should ever be able to pan the page sideways on a phone. */
+  overflow-x: clip;
   /* Lenis drives scrolling; native smooth would fight it. */
   scroll-behavior: auto;
   -webkit-text-size-adjust: 100%;
@@ -144,6 +146,12 @@ body[data-cursor="on"] * {
 
 .stage-pin > * {
   width: 100%;
+}
+
+/* Set by the scroll engine when a panel is taller than the screen: it
+   starts top-aligned and is panned up through its content instead. */
+.stage-pin[data-overflow="true"] {
+  align-items: flex-start;
 }
 
 .panel {
@@ -280,6 +288,19 @@ body[data-cursor="on"] * {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  max-width: calc(100vw - 1.5rem);
+  pointer-events: none;
+  transition:
+    transform 0.5s var(--ease-out),
+    opacity 0.35s var(--ease-out);
+}
+
+.nav[data-hidden="true"] {
+  transform: translate(-50%, calc(-100% - 2rem));
+  opacity: 0;
+}
+
+.nav[data-hidden="true"] > * {
   pointer-events: none;
 }
 
@@ -1468,4 +1489,90 @@ body[data-cursor="on"] * {
 .availability,
 .mono-label {
   color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- *
+ * Phones
+ * ---------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .stage-pin {
+    padding: 4.75rem var(--gutter) 1.5rem;
+    overflow-x: clip;
+  }
+
+  .display,
+  .disciplines .display,
+  .evidence .display {
+    font-size: clamp(1.85rem, 8.4vw, 2.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    overflow-wrap: break-word;
+  }
+
+  .typewell {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .typewell::before {
+    inset: -12% -6%;
+  }
+
+  .lede {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    max-width: 100%;
+  }
+
+  .eyebrow {
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+  }
+
+  .hero-actions {
+    width: 100%;
+  }
+
+  .hero-actions .btn,
+  .contact .btn {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .hero-meta {
+    gap: 0.9rem 1.4rem;
+  }
+
+  .disc-col.right {
+    text-align: left;
+  }
+
+  .disc-col.right .disc-head {
+    justify-content: flex-start;
+  }
+
+  .disc-col.right .disc-detail > span {
+    margin-left: 0;
+  }
+
+  .disc {
+    padding: 0.7rem 0;
+  }
+
+  .step {
+    flex-basis: min(80vw, 18rem);
+  }
+
+  .nav .brand {
+    padding: 0.4rem 0.7rem 0.4rem 0.6rem;
+    font-size: 12px;
+  }
+
+  .nav .btn {
+    padding: 0.55rem 0.85rem;
+    font-size: 12px;
+    white-space: nowrap;
+  }
 }
